@@ -1,4 +1,4 @@
-package com.wojciech.manager;
+package com.wojciech.orchestrator;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

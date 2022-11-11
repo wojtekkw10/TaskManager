@@ -9,12 +9,12 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.wojciech</groupId>
-	<artifactId>manager</artifactId>
+	<artifactId>orchestrator</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>manager</name>
+	<name>orchestrator</name>
 	<description>Task Manager</description>
 	<properties>
-		<java.version>19</java.version>
+		<java.version>18</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
