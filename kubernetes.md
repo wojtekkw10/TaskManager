@@ -41,6 +41,3 @@ Kind doesn't have support for LoadBalancers. So we need to forward IPs.
 
 # Ingress
 `kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.3/deploy/static/provider/cloud/deploy.yaml`
-
-
-

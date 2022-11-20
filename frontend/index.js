@@ -5,70 +5,95 @@ var SERVICE_URL = "http://localhost:8080/tasks"
 $(function() {
     const dataGrid = $("#taskDataGrid").dxDataGrid({
         dataSource: new DevExpress.data.CustomStore({
-            key: "taskId",
+            key: "id",
                load: function(loadOptions) {
-                    var d = $.Deferred();
-                    var params = {};
-                   [
-                       "filter",
-                       "group",
-                       "groupSummary",
-                       "parentIds",
-                       "requireGroupCount",
-                       "requireTotalCount",
-                       "searchExpr",
-                       "searchOperation",
-                       "searchValue",
-                       "select",
-                       "sort",
-                       "skip",
-                       "take",
-                       "totalSummary",
-                       "userData"
-                   ].forEach(function(i) {
-                       if(i in loadOptions && isNotEmpty(loadOptions[i])) {
-                           params[i] = JSON.stringify(loadOptions[i]);
-                       }
+                var d = $.Deferred();
+                var params = {};
+                [
+                   "filter",
+                   "group",
+                   "groupSummary",
+                   "parentIds",
+                   "requireGroupCount",
+                   "requireTotalCount",
+                   "searchExpr",
+                   "searchOperation",
+                   "searchValue",
+                   "select",
+                   "sort",
+                   "skip",
+                   "take",
+                   "totalSummary",
+                   "userData"
+                ].forEach(function(i) {
+                   if(i in loadOptions && isNotEmpty(loadOptions[i])) {
+                       params[i] = JSON.stringify(loadOptions[i]);
+                   }
+                })
+
+                $.getJSON(SERVICE_URL, params)
+                   .done(function(response) {
+                       d.resolve(response.data, {
+                           totalCount: response.totalCount,
+                           //summary: response.summary,
+                           //groupCount: response.groupCount
+                       });
                    })
+                   .fail(function() { throw "Data loading error" });
+                return d.promise();
 
-                   $.getJSON(SERVICE_URL, params)
-                       .done(function(response) {
-                       console.log(response)
-                           d.resolve(response.data, {
-                               totalCount: response.totalCount,
-                               //summary: response.summary,
-                               //groupCount: response.groupCount
-                           });
-                       })
-                       .fail(function() { throw "Data loading error" });
-                   return d.promise();
+                },
 
-               },
-
-                        byKey: function(key) {
-                            return $.getJSON(SERVICE_URL + "/" + encodeURIComponent(key));
-                        },
-
-                        insert: function(values) {
-                            return $.post(SERVICE_URL, values);
-                        },
-
-                        update: function(key, values) {
-                            return $.ajax({
-                                url: SERVICE_URL + "/" + encodeURIComponent(key),
-                                method: "PUT",
-                                data: values
+                byKey: function (key) {
+                        var d = new $.Deferred();
+                        $.get(SERVICE_URL + "?id=" + key)
+                            .done(function (dataItem) {
+                                d.resolve(dataItem);
                             });
-                        },
+                        return d.promise();
+                },
 
-                        remove: function(key) {
-                            return $.ajax({
-                                url: SERVICE_URL + "/" + encodeURIComponent(key),
-                                method: "DELETE",
-                            });
-                        }
-
-                    }),
+                insert: function(values) {
+                        var deferred = $.Deferred();
+                        $.ajax({
+                            url: SERVICE_URL + "/insert",
+                            method: "POST",
+                            data: JSON.stringify(values),
+                            contentType: "application/json"
+                        })
+                        .done(deferred.resolve)
+                        .fail(function(e){
+                            deferred.reject("Insertion failed");
+                        });
+                        return deferred.promise();
+                    },
+                    remove: function(key) {
+                        var deferred = $.Deferred();
+                        $.ajax({
+                            url: SERVICE_URL + "/delete/" + encodeURIComponent(key),
+                            method: "DELETE"
+                        })
+                        .done(deferred.resolve)
+                        .fail(function(e){
+                            deferred.reject("Deletion failed");
+                        });
+                        return deferred.promise();
+                    },
+                    update: function(key, values) {
+                        var deferred = $.Deferred();
+                        $.ajax({
+                            url: SERVICE_URL + "/update/" + encodeURIComponent(key),
+                            method: "PUT",
+                            data: JSON.stringify(values),
+                            contentType: "application/json"
+                        })
+                        .done(deferred.resolve)
+                        .fail(function(e){
+                            deferred.reject("Update failed");
+                        });
+                        return deferred.promise();
+                    }
+                }),
         allowColumnResizing: true,
         columnAutoWidth: true,
         columnFixing: {
@@ -78,7 +103,7 @@ $(function() {
         allowColumnReordering: true,
         columnChooser: { enabled: true },
         columns: [
-        "taskName",
+        "taskDescription",
         "taskCategory"
         ],
         filterRow: { visible: true },

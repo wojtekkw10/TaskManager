@@ -16,7 +16,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.cors(withDefaults());
+        http.cors(withDefaults()).csrf().disable(); //csrf disabled for POST
         return http.build();
     }
     @Bean
